@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro.Examples;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -9,8 +10,21 @@ public class Player : MonoBehaviour
     [SerializeField]
     private float _speed = 5f;
 
+    private float _currentSpeed;
+
+    private float _thrusterFuel = 100f;
+
+    private float _thrustFuelBurnRate = 25f;
+
+    private float _thrusterFuelRechargeRate = 5f;
+
     [SerializeField]
     private float _fireRate = .15f;
+    [SerializeField]
+    private float _thrusterCoolDown = .5f;
+    [SerializeField] 
+    private float _CoolingTimer;
+
 
     private float _canFire = -1f;
     [SerializeField]
@@ -23,6 +37,8 @@ public class Player : MonoBehaviour
     private bool _isTripleShotEnabled = false;
 
     private bool _isPlayerShieldEnabled = false;
+    [SerializeField]
+    private SpriteRenderer _shieldStrength;
 
     [SerializeField]
     private GameObject _laserPrefab;
@@ -44,6 +60,10 @@ public class Player : MonoBehaviour
     
     [SerializeField]
     private float _speedBoostMultiplier = 1.5f;
+
+    //private float _baseMultiplier = 1.0f;
+
+    private float _thrustMultiplier = 3f;
 
     private float _horizontalInput;
 
@@ -70,6 +90,20 @@ public class Player : MonoBehaviour
     private GameObject Laser;
 
     private Laser _laser;
+
+    private KeyCode _ThusterActive = KeyCode.LeftShift;
+
+    private bool _isSpeedBoostActive = false;
+
+    private bool _isThrustingActive = false;
+
+    private bool _canUseThruters = true;
+
+    private bool _isThrusterCooling = false;
+
+    private bool _thrusterActive;
+
+    private bool _thrusterOverHeating;
 
 
     // Start is called before the first frame update
@@ -105,11 +139,45 @@ public class Player : MonoBehaviour
     }
     void CalculateMovement()
     {
+        _isThrustingActive = Input.GetKey(_ThusterActive) && _canUseThruters;
+
+        _thrusterActive = _isThrustingActive && _canUseThruters;
+
+        _thrusterOverHeating = _thrusterFuel < 100f && !_isThrusterCooling;
+
+        _currentSpeed = _thrusterActive ? _speed * _thrustMultiplier : _speed;
+               
+
+        if(_isThrustingActive)
+        {
+            ThrusterFuelBurn();
+        }
+        else if(_thrusterOverHeating) 
+        {
+            StartThrusterCoolDown();
+        }
+
+        if(_isThrusterCooling)
+        {
+            if (_CoolingTimer > 0f)
+            {
+                _CoolingTimer -= Time.deltaTime;
+            }
+            else
+            {
+                ThrusterFuelRecharge();
+            }           
+
+        }        
+        
+
+        _currentSpeed = _isSpeedBoostActive ? _speed * _speedBoostMultiplier : _currentSpeed;
+        
         _horizontalInput = Input.GetAxis("Horizontal");
         _verticalInput = Input.GetAxis("Vertical");
 
         _playerDirection = transform.right * _horizontalInput + transform.up * _verticalInput;
-        transform.Translate(_playerDirection * _speed * Time.deltaTime);
+        transform.Translate(_playerDirection * _currentSpeed  * Time.deltaTime);
 
         
         _playerPosition = transform.position;
@@ -128,6 +196,8 @@ public class Player : MonoBehaviour
         }
         
         transform.position = new Vector3(_playerPosition.x, _playerPosition.y, 0f);
+
+       
     }
 
     void FireLaser()
@@ -196,9 +266,10 @@ public class Player : MonoBehaviour
 
     IEnumerator SpeedBoostPowerDownRoutine()
     {
-        _speed = _speed * _speedBoostMultiplier;
+        _isSpeedBoostActive = true;
         yield return new WaitForSeconds(_powerUpActiveTime);
-        _speed = _speed / _speedBoostMultiplier;
+        _isSpeedBoostActive = false;
+        _speedBoostMultiplier = 1f;
 
     }
 
@@ -257,6 +328,38 @@ public class Player : MonoBehaviour
     {
         Instantiate(_explosion,transform.position, Quaternion.identity);
         Destroy(this.gameObject);
-    }  
+    }
+    
+    void ThrusterFuelBurn()
+    {
+        _thrusterFuel = Mathf.MoveTowards(_thrusterFuel, 0f, _thrustFuelBurnRate * Time.deltaTime);
+        if (_thrusterFuel == 0f)
+        {
+            _canUseThruters = false;
+        }
+        _uiManager.UpdateThrusterFuel(_thrusterFuel);
+    }
+
+    void ThrusterFuelRecharge()
+    {
+        _thrusterFuel = Mathf.MoveTowards(_thrusterFuel, 100f, _thrusterFuelRechargeRate * Time.deltaTime);
+        if(_thrusterFuel == 100f)
+        {
+            _canUseThruters = true;
+            _isThrusterCooling = false;
+        }
+
+        _uiManager.UpdateThrusterFuel(_thrusterFuel);
+        // StartCoroutine(ThrusterCoolDown()); 
+    }
+    
+
+    void StartThrusterCoolDown()
+    {
+        Debug.Log("Thruseter is cooling down");
+        _isThrusterCooling = true;
+        _CoolingTimer = _thrusterCoolDown;
+        _canUseThruters = false;
+    }
    
 }

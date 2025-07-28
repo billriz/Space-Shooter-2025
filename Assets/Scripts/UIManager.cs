@@ -28,6 +28,9 @@ public class UIManager : MonoBehaviour
 
     GameManager _gameManager;
 
+    [SerializeField]
+    private Slider _thrusterFuelSlider;
+
     
     
     // Start is called before the first frame update
@@ -35,6 +38,7 @@ public class UIManager : MonoBehaviour
     {
         UpdateScoretext(0);
         UpdateLivesDisplay(3);
+        UpdateThrusterFuel(100f);
         _gameOverText.SetActive(false);
         _restartText.SetActive(false);
 
@@ -43,7 +47,7 @@ public class UIManager : MonoBehaviour
         {
             Debug.LogError("Game Manager is not assigned");
         }
-        
+
         
     }
 
@@ -94,4 +98,10 @@ public class UIManager : MonoBehaviour
         }
 
     }
+    public void UpdateThrusterFuel(float Thruster_Fuel)
+    {
+        _thrusterFuelSlider.value = Thruster_Fuel;
+    }
+
+    
 }
