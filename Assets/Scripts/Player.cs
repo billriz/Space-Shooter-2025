@@ -1,69 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using TMPro.Examples;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class Player : MonoBehaviour
 {
+    //Plaer Movement
     [SerializeField]
     private float _speed = 5f;
-
+    
     private float _currentSpeed;
-
-    private float _thrusterFuel = 100f;
-
-    private float _thrustFuelBurnRate = 25f;
-
-    private float _thrusterFuelRechargeRate = 5f;
-
-    [SerializeField]
-    private float _fireRate = .15f;
-    [SerializeField]
-    private float _thrusterCoolDown = .5f;
-    [SerializeField] 
-    private float _CoolingTimer;
-
-
-    private float _canFire = -1f;
-    [SerializeField]
-    private int _playerLives = 3;
-
-
-    Spawn_Manager _spawnManager;
-    
-    [SerializeField]
-    private bool _isTripleShotEnabled = false;
-
-    private bool _isPlayerShieldEnabled = false;
-    [SerializeField]
-    private SpriteRenderer _shieldStrength;
-
-    [SerializeField]
-    private GameObject _laserPrefab;
-
-    [SerializeField]
-    private GameObject _tripleShotPrefab;
-    [SerializeField] 
-    private GameObject _playerShield;
- 
-    [SerializeField]
-    private GameObject[] _damages;
-
-    private List<GameObject> _damageLocation;
-
-    private int _damageIndex;
-
-    [SerializeField]
-    private float _powerUpActiveTime = 5.0f;
-    
-    [SerializeField]
-    private float _speedBoostMultiplier = 1.5f;
-
-    //private float _baseMultiplier = 1.0f;
-
-    private float _thrustMultiplier = 3f;
 
     private float _horizontalInput;
 
@@ -73,37 +19,91 @@ public class Player : MonoBehaviour
 
     private Vector3 _playerPosition;
 
+    [SerializeField] 
+    private float _speedBoostMultiplier = 1.5f;
+
+    private float _thrustMultiplier = 3f;
+
+    private float _thrusterFuel = 100f;
+
+    private float _thrustFuelBurnRate = 25f;
+
+    private float _thrusterFuelRechargeRate = 5f;
+
+    private KeyCode _thusterActive = KeyCode.LeftShift;   
+
     [SerializeField]
-    private int _score;
-
-    private UIManager _uiManager;
-    
-    [SerializeField]
-    private AudioSource _audioSource;
+    private float _thrusterCoolDown = .5f;
 
     [SerializeField]
-    private AudioClip _laserSound, _powerUpSound;
-    
-    [SerializeField]
-    private GameObject _explosion;
-
-    private GameObject Laser;
-
-    private Laser _laser;
-
-    private KeyCode _ThusterActive = KeyCode.LeftShift;
-
-    private bool _isSpeedBoostActive = false;
+    private float _CoolingTimer;    
 
     private bool _isThrustingActive = false;
 
     private bool _canUseThruters = true;
 
     private bool _isThrusterCooling = false;
+    
+    [SerializeField]
+    private float _fireRate = .15f;
 
-    private bool _thrusterActive;
+    private float _canFire = -1f;
 
-    private bool _thrusterOverHeating;
+    [SerializeField]
+    private int _laserCount = 15;
+
+    [SerializeField]
+    private GameObject _laserPrefab;
+
+    [SerializeField]
+    private int _score;
+
+    [SerializeField]
+    private int _playerLives = 3;
+
+    [SerializeField]
+    private GameObject[] _damages;
+
+    private List<GameObject> _damageLocation;
+
+    private int _damageIndex;
+
+    
+    //Power Ups
+    [SerializeField]
+    private bool _isTripleShotEnabled = false;
+
+    [SerializeField]
+    private GameObject _tripleShotPrefab;
+
+    private bool _isSpeedBoostActive = false;
+
+    [SerializeField]
+    private GameObject _playerShield;
+
+    private bool _isPlayerShieldEnabled = false;
+
+    [SerializeField]
+    private SpriteRenderer _shieldStrength;
+
+    [SerializeField]
+    private float[] _ShieldStrengthLevel;
+
+    private float _currentShieldLevel;
+
+    private int _shieldHits;
+    private int _maxShieldHits = 3;     
+
+    [SerializeField]
+    private float _powerUpActiveTime = 5.0f;     
+
+    [SerializeField]
+    private GameObject _explosion; 
+
+    Spawn_Manager _spawnManager;
+
+    private UIManager _uiManager;
+
 
 
     // Start is called before the first frame update
@@ -118,11 +118,11 @@ public class Player : MonoBehaviour
         }
 
         _uiManager = GameObject.FindGameObjectWithTag("UIManager").GetComponent<UIManager>();
-        if(_uiManager == null)
+        if (_uiManager == null)
         {
             Debug.LogError("UI Manager is not assigned");
-        }  
-        
+        }
+
     }
 
     // Update is called once per frame
@@ -130,34 +130,39 @@ public class Player : MonoBehaviour
     {
         CalculateMovement();
 
-
-        if (Input.GetKeyDown(KeyCode.Space) && Time.time > _canFire)
+        if (Input.GetKeyDown(KeyCode.Space) && Time.time > _canFire && _laserCount > 0)
         {
             FireLaser();
         }
-
     }
+
     void CalculateMovement()
     {
-        _isThrustingActive = Input.GetKey(_ThusterActive) && _canUseThruters;
+        _isThrustingActive = Input.GetKey(_thusterActive) && _canUseThruters;
 
-        _thrusterActive = _isThrustingActive && _canUseThruters;
+        if (_isThrustingActive)
+        {
+            _currentSpeed = _speed * _thrustMultiplier;
+        }
+        else if (_isSpeedBoostActive)
+        {
+            _currentSpeed = _speed * _speedBoostMultiplier;
+        }
+        else
+        {
+            _currentSpeed = _speed;
+        }
 
-        _thrusterOverHeating = _thrusterFuel < 100f && !_isThrusterCooling;
-
-        _currentSpeed = _thrusterActive ? _speed * _thrustMultiplier : _speed;
-               
-
-        if(_isThrustingActive)
+        if (_isThrustingActive)
         {
             ThrusterFuelBurn();
         }
-        else if(_thrusterOverHeating) 
+        else if (_thrusterFuel < 100f && !_isThrusterCooling)
         {
             StartThrusterCoolDown();
         }
 
-        if(_isThrusterCooling)
+        if (_isThrusterCooling)
         {
             if (_CoolingTimer > 0f)
             {
@@ -166,25 +171,22 @@ public class Player : MonoBehaviour
             else
             {
                 ThrusterFuelRecharge();
-            }           
+            }
 
-        }        
-        
+        }      
 
-        _currentSpeed = _isSpeedBoostActive ? _speed * _speedBoostMultiplier : _currentSpeed;
-        
         _horizontalInput = Input.GetAxis("Horizontal");
         _verticalInput = Input.GetAxis("Vertical");
 
         _playerDirection = transform.right * _horizontalInput + transform.up * _verticalInput;
-        transform.Translate(_playerDirection * _currentSpeed  * Time.deltaTime);
+        transform.Translate(_playerDirection * _currentSpeed * Time.deltaTime);
 
-        
+
         _playerPosition = transform.position;
-        
-        
+
+
         _playerPosition.y = Mathf.Clamp(_playerPosition.y, -3.98f, 0f);
-        
+
 
         if (_playerPosition.x >= 11.24f)
         {
@@ -194,56 +196,74 @@ public class Player : MonoBehaviour
         {
             _playerPosition.x = 11.24f;
         }
-        
+
         transform.position = new Vector3(_playerPosition.x, _playerPosition.y, 0f);
 
-       
+    }
+
+    void ThrusterFuelBurn()
+    {
+        _thrusterFuel = Mathf.MoveTowards(_thrusterFuel, 0f, _thrustFuelBurnRate * Time.deltaTime);
+        if (_thrusterFuel == 0f)
+        {
+            _canUseThruters = false;
+        }
+        _uiManager.UpdateThrusterFuel(_thrusterFuel);
+    }
+
+    void ThrusterFuelRecharge()
+    {
+        _thrusterFuel = Mathf.MoveTowards(_thrusterFuel, 100f, _thrusterFuelRechargeRate * Time.deltaTime);
+        if (_thrusterFuel == 100f)
+        {
+            _canUseThruters = true;
+            _isThrusterCooling = false;
+        }
+
+        _uiManager.UpdateThrusterFuel(_thrusterFuel);
+
+    }
+
+    void StartThrusterCoolDown()
+    {
+        Debug.Log("Thruseter is cooling down");
+        _isThrusterCooling = true;
+        _CoolingTimer = _thrusterCoolDown;
+        _canUseThruters = false;
+    }
+
+    public void SpeedBoostEnabled()
+    {
+
+        StartCoroutine(SpeedBoostPowerDownRoutine());
+    }
+
+    IEnumerator SpeedBoostPowerDownRoutine()
+    {
+        _isSpeedBoostActive = true;
+        yield return new WaitForSeconds(_powerUpActiveTime);
+        _isSpeedBoostActive = false;
+        _speedBoostMultiplier = 1f;
+
     }
 
     void FireLaser()
     {
         _canFire = Time.time + _fireRate;
 
+        _laserCount--;
+
+        _uiManager.UpdateLasertext(_laserCount);
+
         if (_isTripleShotEnabled == true)
         {
-
-            Laser = Instantiate(_tripleShotPrefab, transform.position + new Vector3(0, .08f, 0), Quaternion.identity);            
-                
+            Instantiate(_tripleShotPrefab, transform.position + new Vector3(0, .08f, 0), Quaternion.identity);
         }
         else
         {
-
-            Laser = Instantiate(_laserPrefab, transform.position + new Vector3(0, 1.07f, 0), Quaternion.identity);
-            
-        }
-        
-        
-    }    
-
-    public void Damage()
-    {
-        if (_isPlayerShieldEnabled == true)
-        {
-            return;
+            Instantiate(_laserPrefab, transform.position + new Vector3(0, 1.07f, 0), Quaternion.identity);
         }
 
-        _playerLives -= 1;
-        
-        PlayerDamage();
-
-        _uiManager.UpdateLivesDisplay(_playerLives);
-
-        if (_playerLives < 1)
-        {
-            if (_spawnManager != null)
-
-            {
-                _spawnManager.OnPlayerDeath();               
-
-            }                        
-
-            OnPlayerDeath();
-        }
     }
 
     public void TripleShotEnabled()
@@ -258,108 +278,98 @@ public class Player : MonoBehaviour
         _isTripleShotEnabled = false;
     }
 
-    public void SpeedBoostEnabled()
+    public void Damage()
     {
-        
-        StartCoroutine(SpeedBoostPowerDownRoutine());        
-    }
-
-    IEnumerator SpeedBoostPowerDownRoutine()
-    {
-        _isSpeedBoostActive = true;
-        yield return new WaitForSeconds(_powerUpActiveTime);
-        _isSpeedBoostActive = false;
-        _speedBoostMultiplier = 1f;
-
-    }
-
-    public void PlayerShieldEnabled()
-    {
-        _isPlayerShieldEnabled = true;
-        if(_playerShield != null)
+        if (_isPlayerShieldEnabled == true)
         {
-            _playerShield.SetActive(true);
+            _shieldHits += 1;
+            ShieldStrength(_shieldHits);
+            return;
         }
-        
-        StartCoroutine(PlayerShieldPowerDownRoutine()); 
-    }
 
-    IEnumerator PlayerShieldPowerDownRoutine()
-    {
+        _playerLives -= 1;
 
-        yield return new WaitForSeconds(_powerUpActiveTime);
-        _isPlayerShieldEnabled = false;
-        if(_playerShield != null)
+        PlayerDamage();
+
+        _uiManager.UpdateLivesDisplay(_playerLives);
+
+        if (_playerLives < 1)
         {
-            _playerShield.SetActive(false);
-        }
-    }
+            if (_spawnManager != null)
 
-    public void ScoreUpdate(int points)
-    {
-        _score += points;
-        _uiManager.UpdateScoretext(_score);
+            {
+                _spawnManager.OnPlayerDeath();
+
+            }
+
+            OnPlayerDeath();
+        }
     }
 
     void PlayerDamage()
     {
-        
-       _damageLocation = _damages.Where(l => !l.activeSelf).ToList();
-              
+        _damageLocation = _damages.Where(l => !l.activeSelf).ToList();
 
         if (_damageLocation.Count > 0)
         {
             _damageIndex = Random.Range(0, _damageLocation.Count);
             _damageLocation[_damageIndex].SetActive(true);
         }
-               
-    }    
 
-    public void PowerUpSound()
-    {
-        if(_powerUpSound != null)
-        {
-            _audioSource.PlayOneShot(_powerUpSound);
-        }
-        
     }
 
     void OnPlayerDeath()
     {
-        Instantiate(_explosion,transform.position, Quaternion.identity);
+        Instantiate(_explosion, transform.position, Quaternion.identity);
         Destroy(this.gameObject);
     }
-    
-    void ThrusterFuelBurn()
-    {
-        _thrusterFuel = Mathf.MoveTowards(_thrusterFuel, 0f, _thrustFuelBurnRate * Time.deltaTime);
-        if (_thrusterFuel == 0f)
-        {
-            _canUseThruters = false;
-        }
-        _uiManager.UpdateThrusterFuel(_thrusterFuel);
-    }
 
-    void ThrusterFuelRecharge()
+    public void PlayerShieldEnabled()
     {
-        _thrusterFuel = Mathf.MoveTowards(_thrusterFuel, 100f, _thrusterFuelRechargeRate * Time.deltaTime);
-        if(_thrusterFuel == 100f)
+        _isPlayerShieldEnabled = true;
+        if (_playerShield != null)
         {
-            _canUseThruters = true;
-            _isThrusterCooling = false;
+            _playerShield.SetActive(true);
         }
 
-        _uiManager.UpdateThrusterFuel(_thrusterFuel);
-        // StartCoroutine(ThrusterCoolDown()); 
     }
-    
 
-    void StartThrusterCoolDown()
+    void ShieldStrength(int Hits)
     {
-        Debug.Log("Thruseter is cooling down");
-        _isThrusterCooling = true;
-        _CoolingTimer = _thrusterCoolDown;
-        _canUseThruters = false;
+        _shieldHits = Mathf.Clamp(Hits, 0, _maxShieldHits);
+
+        if (_shieldHits < _maxShieldHits)
+        {
+            _currentShieldLevel = (_shieldHits < _ShieldStrengthLevel.Length) ? _ShieldStrengthLevel[_shieldHits] : 0;
+            SetShieldStrength(_currentShieldLevel);
+
+        }
+        else
+        {
+            ShieldDisabled();
+        }
+
     }
+
+    void ShieldDisabled()
+    {
+        _isPlayerShieldEnabled = false;
+        if (_playerShield != null)
+        {
+            _playerShield.SetActive(false);
+        }
+        SetShieldStrength(1f);
+    }
+
+    void SetShieldStrength(float _alpha)
+    {
+        _shieldStrength.color = new Color(1, 1, 1, _alpha);
+    }
+
+    public void ScoreUpdate(int points)
+    {
+        _score += points;
+        _uiManager.UpdateScoretext(_score);
+    }       
    
 }

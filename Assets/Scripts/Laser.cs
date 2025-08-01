@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class Laser : MonoBehaviour
 {
-    // laser speed of 8f
+    
     [SerializeField]
     private float _laserSpeed = 8f;
 
@@ -15,14 +15,10 @@ public class Laser : MonoBehaviour
         
     // Update is called once per frame
     void Update()
-    {
-        // move laser up
-
+    {  
 
         CalculateMovemnet();
 
-        
-      
     }
 
     void CalculateMovemnet()

@@ -20,33 +20,24 @@ public class Spawn_Manager : MonoBehaviour
     private GameObject _enemyContainer;
 
     [SerializeField]
-    private GameObject[] powerUps ;
+    private GameObject[] _powerUps;
     [SerializeField]
     private Vector3 _enemySpawnPos = new Vector3(0, 8f, 0);
 
     [SerializeField]
     private Vector3 _powerUpSpawnPos = new Vector3(0, 8f, 0);
 
-    private int _randomPowerUpId;
-    
-    //private bool _isAstoridDestroyed = false;
+    private int _randomPowerUpId;     
 
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        //StartCoroutine(SpawnEnemyRoutine());
-
-        //StartCoroutine(SpawnPowerupRoutine());
-    }
+    // Start is called before the first frame update   
     public void StartSpawning()
-    {    
-       
-     
+    { 
+        
         StartCoroutine(SpawnEnemyRoutine());
 
         StartCoroutine(SpawnPowerupRoutine());
-       
+        
     }
 
     IEnumerator SpawnEnemyRoutine()
@@ -64,7 +55,6 @@ public class Spawn_Manager : MonoBehaviour
         _enemySpawnPos.x = Random.Range(-9f, 9f);
         GameObject _newEnemy = Instantiate(_enemyPrefab,_enemySpawnPos, Quaternion.identity); 
         _newEnemy.transform.parent = _enemyContainer.transform;
-
         
     }
 
@@ -83,15 +73,13 @@ public class Spawn_Manager : MonoBehaviour
         _powerUpSpawnPos.x = Random.Range(-9f, 9f);
         _randomPowerUpId = Random.Range(0, 3);
         //_powerupSpawnPos = new Vector3(Random.Range(-9f, 9f), 8f, 0);
-        GameObject _newTripleShotPowerup = Instantiate(powerUps[_randomPowerUpId], _powerUpSpawnPos, Quaternion.identity);
+        GameObject _newTripleShotPowerup = Instantiate(_powerUps[_randomPowerUpId], _powerUpSpawnPos, Quaternion.identity);
     }
 
     public void OnPlayerDeath() 
     {
         _stopSpawning = true; 
     
-    }
-
-    
+    }    
 
 }

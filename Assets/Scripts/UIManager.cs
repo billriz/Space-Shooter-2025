@@ -11,6 +11,9 @@ public class UIManager : MonoBehaviour
     private TMP_Text _scoreText;
 
     [SerializeField]
+    private TMP_Text _laserCount;
+
+    [SerializeField]
     private GameObject _gameOverText;
 
     [SerializeField]
@@ -47,22 +50,22 @@ public class UIManager : MonoBehaviour
         {
             Debug.LogError("Game Manager is not assigned");
         }
-
         
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    
 
     public void UpdateScoretext(int score)
     {
 
-        _scoreText.text = "Score: " + score.ToString();
+        _scoreText.text = "Score: " + score.ToString();        
         
-        
+    }
+
+    public void UpdateLasertext(int laserCount)
+    {
+
+        _laserCount.text = "Lasers: " + laserCount.ToString();
+
     }
 
     public void UpdateLivesDisplay(int lives)
@@ -72,7 +75,7 @@ public class UIManager : MonoBehaviour
             lives = 0;  
         }
         _livesImage.sprite = _livesSprite[lives];      
-        if (lives <= 0)
+        if (lives == 0)
         {
             StartCoroutine(GameoverFlicker());
             _restartText.SetActive(true);

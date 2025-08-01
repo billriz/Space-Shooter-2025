@@ -35,8 +35,7 @@ public class GameManager : MonoBehaviour
     }
 
     void RestartGame()
-    {
-        Scene currentScene = SceneManager.GetActiveScene();
-        SceneManager.LoadScene(currentScene.name);
+    {        
+        SceneManager.LoadScene(1);
     }
 }

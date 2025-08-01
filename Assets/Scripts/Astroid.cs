@@ -20,7 +20,7 @@ public class Astroid : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //_spawnManager = GameObject.FindGameObjectWithTag("SpawnManager").GetComponent<Spawn_Manager>();
+        
         if (_spawnManager == null)
         {
             Debug.LogError("Sapwn Manager is not assigned");

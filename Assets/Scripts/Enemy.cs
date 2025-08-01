@@ -19,23 +19,16 @@ public class Enemy : MonoBehaviour
 
     
     private Player _player;
-
-    [SerializeField]
+    
     private Animator _animator;
-
-    [SerializeField]
-    private AudioSource _audioSource;
-
-    [SerializeField]
-    private AudioClip _explosionSound;
+    
+    private AudioSource _audioSource;    
 
     [SerializeField]
     private GameObject _laserPrefab;
 
-    private bool _isAlive =true;
-               
-    private GameObject Laser;
-
+    private bool _isAlive =true;            
+    
     private Laser _laser;
 
 
@@ -85,7 +78,16 @@ public class Enemy : MonoBehaviour
             transform.position = _enemyReSpawnPos;
         }
     }
-        
+
+    void FireLaser()
+    {
+        _enemyFireRate = Random.Range(3f, 7f);
+        _enemeyCanFire = Time.time + _enemyFireRate;
+
+        Instantiate(_laserPrefab, transform.position, Quaternion.identity);
+
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Laser"))
@@ -101,8 +103,7 @@ public class Enemy : MonoBehaviour
             if (_animator != null)
             {
                 EnemeyExplosion();
-            }            
-
+            } 
 
         }
         else if (other.CompareTag("Player"))
@@ -129,16 +130,9 @@ public class Enemy : MonoBehaviour
 
     public void EnemeyExplosionSound()
     {
-        _audioSource.PlayOneShot(_explosionSound);
+        _audioSource.Play();
     }
 
-    void FireLaser()
-    {
-        _enemyFireRate = Random.Range(3f, 7f);
-        _enemeyCanFire = Time.time + _enemyFireRate;
-
-        Instantiate(_laserPrefab, transform.position, Quaternion.identity);
-        
-    }
+    
     
 }

@@ -100,6 +100,7 @@ MonoBehaviour:
   _powerUpSpeed: 3
   _powerupID: 0
   _player: {fileID: 0}
+  _pickUpSound: {fileID: 8300000, guid: 5ee343246919d2b4bba63ae629e95494, type: 3}
 --- !u!61 &-1114712534336592109
 BoxCollider2D:
   m_ObjectHideFlags: 0

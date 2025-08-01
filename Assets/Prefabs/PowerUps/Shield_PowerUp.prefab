@@ -147,6 +147,7 @@ MonoBehaviour:
   _powerUpSpeed: 3
   _powerupID: 2
   _player: {fileID: 0}
+  _pickUpSound: {fileID: 8300000, guid: 5ee343246919d2b4bba63ae629e95494, type: 3}
 --- !u!95 &4205346480901882806
 Animator:
   serializedVersion: 3
