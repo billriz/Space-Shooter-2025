@@ -49,6 +49,12 @@ public class Powerups : MonoBehaviour
                     case 2:                        
                         _player.PlayerShieldEnabled();
                         break;
+                    case 3:
+                        _player.AddLasers();
+                        break;
+                    case 4:
+                        _player.PlayerRepair();
+                        break;
 
                     default:
                         break;

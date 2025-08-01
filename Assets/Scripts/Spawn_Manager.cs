@@ -71,7 +71,7 @@ public class Spawn_Manager : MonoBehaviour
     void SpawnPowerups()
     {
         _powerUpSpawnPos.x = Random.Range(-9f, 9f);
-        _randomPowerUpId = Random.Range(0, 3);
+        _randomPowerUpId = Random.Range(0, 5);
         //_powerupSpawnPos = new Vector3(Random.Range(-9f, 9f), 8f, 0);
         GameObject _newTripleShotPowerup = Instantiate(_powerUps[_randomPowerUpId], _powerUpSpawnPos, Quaternion.identity);
     }

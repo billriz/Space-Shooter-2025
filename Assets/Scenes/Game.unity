@@ -1969,6 +1969,7 @@ MonoBehaviour:
   _thrusterCoolDown: 10
   _CoolingTimer: 0
   _fireRate: 0.15
+  _laserCount: 15
   _laserPrefab: {fileID: 4193686646279947795, guid: cdacb26a2c89893488d12f47a0c3f371,
     type: 3}
   _score: 0
@@ -2416,6 +2417,8 @@ MonoBehaviour:
   - {fileID: 4450035143131243572, guid: 7e73809886ed925468a558c7be9a2f91, type: 3}
   - {fileID: 8077120696634628936, guid: 616ad9f860b89844d85749d75a1e487d, type: 3}
   - {fileID: 4205346480901882807, guid: 4bcb578bbd35116469b025384623e8f6, type: 3}
+  - {fileID: 5731932653755434279, guid: 55f59fa0b0eb23f48ae212b6c2fce794, type: 3}
+  - {fileID: 1273629012826332373, guid: 267fafe43eb89cf4187d0cf1d91013fd, type: 3}
   _enemySpawnPos: {x: 0, y: 8, z: 0}
   _powerUpSpawnPos: {x: 0, y: 8, z: 0}
 --- !u!4 &1857070848

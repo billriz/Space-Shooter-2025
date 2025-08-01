@@ -102,7 +102,7 @@ public class Player : MonoBehaviour
 
     Spawn_Manager _spawnManager;
 
-    private UIManager _uiManager;
+    private UIManager _uiManager;    
 
 
 
@@ -318,6 +318,24 @@ public class Player : MonoBehaviour
 
     }
 
+    public void PlayerRepair()
+    {
+        if(_playerLives < 3)
+        {
+            _playerLives++;
+            _uiManager.UpdateLivesDisplay(_playerLives);
+            if (_damageLocation[0].activeSelf)
+            {
+                _damageLocation[0].SetActive(false);
+            }
+            else
+            {
+                _damageLocation[1].SetActive(false);
+            }
+        }
+        
+    }
+
     void OnPlayerDeath()
     {
         Instantiate(_explosion, transform.position, Quaternion.identity);
@@ -371,5 +389,11 @@ public class Player : MonoBehaviour
         _score += points;
         _uiManager.UpdateScoretext(_score);
     }       
+
+    public void AddLasers()
+    {
+        _laserCount = 15;
+        _uiManager.UpdateLasertext(_laserCount);
+    }
    
 }
